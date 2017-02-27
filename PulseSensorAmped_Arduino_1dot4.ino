@@ -126,7 +126,7 @@ int photocellPin2 = 1; // the cell and 10K pulldown are connected to a0
     
 #define INTERRUPT_PIN 2  // use pin 2 on Arduino Uno & most boards
 #define LED_PIN 13 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
-#define VIBERATION_PIN 8
+#define VIBERATION_PIN 6
 bool blinkState = false;
 
 // MPU control/status vars
@@ -222,7 +222,8 @@ unsigned long interval_time = 0;
 unsigned long last_movement = 0;
 bool waiting_for_response = false; 
 
-
+//for testing
+int counter_2 = 0;
 
 // ================================================================
 // ===                      INITIAL SETUP                       ===
@@ -233,7 +234,7 @@ void setup() {
 
 
     
-    pinMode(VIBERATION_PIN, OUTPUT);
+    //pinMode(VIBERATION_PIN, OUTPUT);
    // IF YOU ARE POWERING The Pulse Sensor AT VOLTAGE LESS THAN THE BOARD VOLTAGE, 
    // UN-COMMENT THE NEXT LINE AND APPLY THAT VOLTAGE TO THE A-REF PIN
    //   analogReference(EXTERNAL);   
@@ -322,29 +323,42 @@ void loop() {
     //Serial.println((last_movement-millis())/1000 );
 // //for ligth sensor
     unsigned long counter = millis();
+    
     while(waiting_for_response != false){
+      counter_2 +=1;
+      Serial.println("we are waiting for response");
+      Serial.print("counter is:"); Serial.println(counter_2);
        while(mySerial.available()<=0){
        // count time here in case it stucked
-       if((millis() - counter) > 60000){
+       if((millis() - counter) > 10000){
         waiting_for_response =  false;
-        ////// remove this
-        Serial.println("for test : before tone");
-        tone(VIBERATION_PIN, 4000, 5000);
         last_movement = millis();
-        waiting_for_response = true;
         break;
        }
-       
-       
-       }
-       mySerial.read();
-       char c = mySerial.read();
-       if(c == "T"){
-               tone(VIBERATION_PIN, 4000, 5000);
-
+       if(counter_2>=5){
+        ////// remove this
+        Serial.println("for test : before tone");
+          pinMode(VIBERATION_PIN, OUTPUT);
+          delay(5000);
+          pinMode(VIBERATION_PIN, INPUT);
+          waiting_for_response =  false;
+          last_movement = millis();
+          break;
        }else{
-          waiting_for_response = false;
+          waiting_for_response =  false;
+          last_movement = millis();
+          break;
        }
+       
+       }
+//       mySerial.read();
+//       char c = mySerial.read();
+//       if(c == "T"){
+//               tone(VIBERATION_PIN, 4000, 5000);
+//
+//       }else{
+//          waiting_for_response = false;
+//       }
        
        
     }
@@ -444,7 +458,7 @@ void loop() {
             last_movement = millis();
             Serial.println("interval time is:");
              Serial.println(interval_time);
-            if(interval_time > 60000){ // 30,000 millis is 0.5 minute
+            if(interval_time > 10000){ // 30,000 millis is 0.5 minute
 //              for(int i = 0;i<10; i++){
 //                mySerial.println("wake_up"); // now there is change in sleep level (in/out from Rem )
 //              }
